@@ -45,3 +45,12 @@ Sub AtualizarCoresEAlertar()
         MsgBox "Tudo sob controle! Nenhum prazo crítico hoje.", vbInformation, "GUARDIÃO DE PRAZOS"
     End If
 End Sub
+
+
+##### Guardião_de_prazos.xlsm - EstaPastaDeTrabalho
+
+Private Sub Workbook_Open()
+    Call AtualizarCoresEAlertar
+End Sub
+
+

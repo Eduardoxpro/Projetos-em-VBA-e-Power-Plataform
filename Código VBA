@@ -1,0 +1,47 @@
+Sub AtualizarCoresEAlertar()
+    Dim ws As Worksheet
+    Dim ultimaLinha As Long, i As Long
+    Dim dataLimite As Date
+    Dim diasRestantes As Integer
+    Dim prazosCriticos As Integer, prazosUrgentes As Integer
+    Dim mensagem As String
+    
+    Set ws = ThisWorkbook.Sheets("Prazos")   ' ← se sua aba tiver outro nome, muda aqui
+    ultimaLinha = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row
+    
+    prazosCriticos = 0
+    prazosUrgentes = 0
+    mensagem = ""
+    
+    ' Limpa cores antigas
+    ws.Range("A2:F" & ultimaLinha).Interior.ColorIndex = xlNone
+    
+    For i = 2 To ultimaLinha
+        If IsDate(ws.Cells(i, "E").Value) Then
+            dataLimite = ws.Cells(i, "E").Value
+            diasRestantes = DateDiff("d", Date, dataLimite)
+            
+            If diasRestantes < 0 Then
+                ws.Range("A" & i & ":F" & i).Interior.Color = RGB(255, 0, 0)
+                ws.Range("A" & i & ":F" & i).Font.Color = vbWhite
+                prazosCriticos = prazosCriticos + 1
+                mensagem = mensagem & "VENCEU: " & ws.Cells(i, "B").Value & " (" & ws.Cells(i, "A").Value & ")" & vbCrLf
+            ElseIf diasRestantes <= 3 Then
+                ws.Range("A" & i & ":F" & i).Interior.Color = RGB(255, 100, 100)
+                prazosCriticos = prazosCriticos + 1
+                mensagem = mensagem & diasRestantes & " dias → " & ws.Cells(i, "B").Value & vbCrLf
+            ElseIf diasRestantes <= 7 Then
+                ws.Range("A" & i & ":F" & i).Interior.Color = RGB(255, 255, 150)
+                prazosUrgentes = prazosUrgentes + 1
+            End If
+        End If
+    Next i
+    
+    If prazosCriticos > 0 Then
+        MsgBox "PRAZOS CRÍTICOS!" & vbCrLf & vbCrLf & mensagem, vbCritical, "GUARDIÃO DE PRAZOS"
+    ElseIf prazosUrgentes > 0 Then
+        MsgBox "Você tem " & prazosUrgentes & " prazos vencendo em até 7 dias.", vbExclamation, "GUARDIÃO DE PRAZOS"
+    Else
+        MsgBox "Tudo sob controle! Nenhum prazo crítico hoje.", vbInformation, "GUARDIÃO DE PRAZOS"
+    End If
+End Sub
